@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class MissileRain : MonoBehaviour
 {
@@ -6,14 +7,32 @@ public class MissileRain : MonoBehaviour
     public GameObject missilePrefab;
 
     public float spawnHeight = 150f;
-    public int missileCount = 10;
+    public int missilePerWave = 10;     // ลูกต่อชุด
+    public int totalWaves = 10;         // จำนวนรอบ
+    public float delayBetweenWaves = 3f;
 
-    void Start()
+    public void StartMissileRain()
     {
-        for (int i = 0; i < missileCount; i++)
+        StartCoroutine(SpawnWaves());
+    }
+
+    IEnumerator SpawnWaves()
+    {
+        for (int wave = 0; wave < totalWaves; wave++)
         {
-            SpawnMissile();
+            // ยิง 10 ลูก
+            for (int i = 0; i < missilePerWave; i++)
+            {
+                SpawnMissile();
+                yield return new WaitForSeconds(0.1f);
+                
+            }
+
+            // รอก่อนรอบถัดไป
+            yield return new WaitForSeconds(delayBetweenWaves);
         }
+
+        Debug.Log("ยิงครบแล้ว!");
     }
 
     void SpawnMissile()
@@ -27,7 +46,6 @@ public class MissileRain : MonoBehaviour
         GameObject missile = Instantiate(missilePrefab, spawnPos, Quaternion.identity);
         Rigidbody rb = missile.GetComponent<Rigidbody>();
 
-        // ให้ตกลง + หมุนให้เข้าแนว
         rb.linearVelocity = Vector3.down * 50f;
         missile.transform.rotation = Quaternion.LookRotation(Vector3.down);
     }
