@@ -698,6 +698,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7f394e12257befb43992c3be83001db7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7250407617049163179}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7f394e12257befb43992c3be83001db7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -2099031756635030716}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7f394e12257befb43992c3be83001db7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1110507159381031472}
   m_SourcePrefab: {fileID: 100100000, guid: 7f394e12257befb43992c3be83001db7, type: 3}
 --- !u!137 &333775983412167443 stripped
 SkinnedMeshRenderer:
@@ -876,10 +882,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35729bc827b651845a03189cf57ceb57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCRandomWalk
-  walkRadius: 20
-  waitTime: 2
   walkSpeed: 3.5
   runSpeed: 8
+  walkRadius: 20
   safeZone: {fileID: 8726060932828587593, guid: 47774b42fd101d146b18e188819531b0, type: 3}
 --- !u!195 &7250407617049163179
 NavMeshAgent:
@@ -898,11 +903,50 @@ NavMeshAgent:
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 0
-  m_AutoRepath: 0
+  m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 0
+--- !u!114 &-2099031756635030716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4978816779655408403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aaeb003b127ae29458df7fe15eb5a095, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCHealth
+  maxHP: 100
+  currentHP: 100
+  bleedDamage: 1
+  currentState: 0
+--- !u!136 &1110507159381031472
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4978816779655408403}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.4
+  m_Height: 2.5
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!4 &5072750214636447684 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1134662855679897990, guid: 7f394e12257befb43992c3be83001db7, type: 3}

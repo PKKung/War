@@ -546,6 +546,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 800c7968b38a61941b1f05319e639e54, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7103308738951637344}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 800c7968b38a61941b1f05319e639e54, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -3170977399521277351}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 800c7968b38a61941b1f05319e639e54, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9140271408315235940}
   m_SourcePrefab: {fileID: 100100000, guid: 800c7968b38a61941b1f05319e639e54, type: 3}
 --- !u!137 &24169647019824742 stripped
 SkinnedMeshRenderer:
@@ -751,7 +757,7 @@ NavMeshAgent:
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 0
-  m_AutoRepath: 0
+  m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
@@ -768,11 +774,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35729bc827b651845a03189cf57ceb57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCRandomWalk
-  walkRadius: 20
-  waitTime: 2
   walkSpeed: 3.5
   runSpeed: 8
+  walkRadius: 20
   safeZone: {fileID: 8726060932828587593, guid: 47774b42fd101d146b18e188819531b0, type: 3}
+--- !u!114 &-3170977399521277351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4629455581231081546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aaeb003b127ae29458df7fe15eb5a095, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCHealth
+  maxHP: 100
+  currentHP: 100
+  bleedDamage: 1
+  currentState: 0
+--- !u!136 &9140271408315235940
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4629455581231081546}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.4
+  m_Height: 2.5
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!4 &4846270502283912349 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1134662855679897990, guid: 800c7968b38a61941b1f05319e639e54, type: 3}

@@ -6042,6 +6042,8 @@ GameObject:
   - component: {fileID: 413562869133271636}
   - component: {fileID: 4480694139579527895}
   - component: {fileID: 320202543938955827}
+  - component: {fileID: -244404858899702470}
+  - component: {fileID: 4534611927417084700}
   m_Layer: 0
   m_Name: npc_csl_00_character_02m_02
   m_TagString: Untagged
@@ -6173,7 +6175,7 @@ NavMeshAgent:
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 0
-  m_AutoRepath: 0
+  m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
@@ -6190,11 +6192,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35729bc827b651845a03189cf57ceb57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCRandomWalk
-  walkRadius: 20
-  waitTime: 2
   walkSpeed: 3.5
   runSpeed: 8
+  walkRadius: 20
   safeZone: {fileID: 8726060932828587593, guid: 47774b42fd101d146b18e188819531b0, type: 3}
+--- !u!114 &-244404858899702470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7296818736855454420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aaeb003b127ae29458df7fe15eb5a095, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCHealth
+  maxHP: 100
+  currentHP: 100
+  bleedDamage: 1
+  currentState: 0
+--- !u!136 &4534611927417084700
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7296818736855454420}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.4
+  m_Height: 2.5
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &7301579622123786748
 GameObject:
   m_ObjectHideFlags: 0
