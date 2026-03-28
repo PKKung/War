@@ -22,14 +22,188 @@ ModelImporter:
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
     importConstraints: 0
-    animationCompression: 1
+    animationCompression: 3
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
     animationWrapMode: 0
     extraExposedTransformPaths: []
     extraUserProperties: []
-    clipAnimations: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Front_Door
+      takeName: Front_Door
+      internalID: -8903578005039196439
+      firstFrame: 0
+      lastFrame: 275
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Blast_Shutters
+      takeName: Blast_Shutters
+      internalID: -718029257483923074
+      firstFrame: 280
+      lastFrame: 480
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Blast_Doors
+      takeName: Blast_Doors
+      internalID: -7829633299593589021
+      firstFrame: 500
+      lastFrame: 1050
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Camera1
+      takeName: Camera1
+      internalID: 760765285319468044
+      firstFrame: 1075
+      lastFrame: 1575
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 1074.9
+    - serializedVersion: 16
+      name: Camera2
+      takeName: Camera2
+      internalID: -9070660859083945942
+      firstFrame: 1600
+      lastFrame: 2100
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Garage_Door
+      takeName: Garage_Door
+      internalID: -2587524880439512718
+      firstFrame: 2110
+      lastFrame: 2714
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
     isReadable: 0
   meshes:
     lODScreenPercentages: []
@@ -83,7 +257,272 @@ ModelImporter:
   humanDescription:
     serializedVersion: 3
     human: []
-    skeleton: []
+    skeleton:
+    - name: Military_Hut(Clone)
+      parentName: 
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Ceiling
+      parentName: Military_Hut(Clone)
+      position: {x: 0.00000082640855, y: 2.8012881, z: 0.42429733}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Roof
+      parentName: Military_Hut(Clone)
+      position: {x: 0.00000082640855, y: 3.0052807, z: 0.42429733}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Front_Outside_Wall
+      parentName: Military_Hut(Clone)
+      position: {x: 0.00034179687, y: 2.821087, z: 22.461077}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Back_Outside_Wall
+      parentName: Military_Hut(Clone)
+      position: {x: 0.034852598, y: 2.6692078, z: -7.7219286}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Front_Inside_Wall
+      parentName: Military_Hut(Clone)
+      position: {x: 0.00034179687, y: 2.7234192, z: 8.360469}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Back_Inside_Wall
+      parentName: Military_Hut(Clone)
+      position: {x: 0.00034179687, y: 2.821087, z: -23.764894}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Front_Entrace
+      parentName: Military_Hut(Clone)
+      position: {x: 0.012258834, y: 1.7099338, z: 7.953176}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: DoorFrames
+      parentName: Military_Hut(Clone)
+      position: {x: 0.011033096, y: 1.9056988, z: -0.2556662}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: MetalFrame
+      parentName: Military_Hut(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Fuse_Box
+      parentName: Military_Hut(Clone)
+      position: {x: 1.3482803, y: 0.99152225, z: 7.0426884}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Tracks
+      parentName: Military_Hut(Clone)
+      position: {x: -0.008488617, y: 2.6978526, z: 0.515245}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Signs
+      parentName: Military_Hut(Clone)
+      position: {x: 0.008106503, y: 1.6682785, z: 0.41089356}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Barricades
+      parentName: Military_Hut(Clone)
+      position: {x: 0.010675354, y: 0.5150705, z: 2.1325462}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Brackets
+      parentName: Military_Hut(Clone)
+      position: {x: 0.0019926452, y: 2.8591352, z: -6.34042}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Fluorescent_Lights
+      parentName: Military_Hut(Clone)
+      position: {x: 0.005652286, y: 5.093828, z: 0.44175705}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Foundation
+      parentName: Military_Hut(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Window_Frames
+      parentName: Military_Hut(Clone)
+      position: {x: -0.017692141, y: 1.7200404, z: 8.511488}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Windows
+      parentName: Military_Hut(Clone)
+      position: {x: -0.018293915, y: 1.7820089, z: 8.5552225}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Keypads_SecurityLights
+      parentName: Military_Hut(Clone)
+      position: {x: 1.4152533, y: 1.2782046, z: -0.25730652}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Door
+      parentName: Military_Hut(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Blast_Shutters
+      parentName: Military_Hut(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Blast_Doors
+      parentName: Military_Hut(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: GarageDoor
+      parentName: Military_Hut(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Camera1
+      parentName: Military_Hut(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Camera2
+      parentName: Military_Hut(Clone)
+      position: {x: 4.38869, y: 0.40151027, z: -17.097084}
+      rotation: {x: 6.123234e-17, y: 1, z: -6.123234e-17, w: 5.0532154e-16}
+      scale: {x: 1, y: 1, z: 1}
+    - name: DoorStart
+      parentName: Military_Hut(Clone)
+      position: {x: -0.6084424, y: 1.2311779, z: 7.303549}
+      rotation: {x: 6.112702e-17, y: 0.9999985, z: -6.112702e-17, w: -0.001718537}
+      scale: {x: 1, y: 1, z: 1}
+    - name: DoorEnd
+      parentName: DoorStart
+      position: {x: -1.0974183, y: 1.4210854e-16, z: -0.032075413}
+      rotation: {x: 0, y: 0.6877961, z: -0, w: 0.725904}
+      scale: {x: 1, y: 1, z: 1}
+    - name: HandleStem
+      parentName: DoorEnd
+      position: {x: 0.03651933, y: -2.842171e-16, z: -0.0024035468}
+      rotation: {x: 6.036155e-17, y: 0.9999003, z: -6.036155e-17, w: -0.0141213415}
+      scale: {x: 1, y: 1, z: 1}
+    - name: HandleKnob
+      parentName: HandleStem
+      position: {x: -0.030787665, y: 1.4210854e-16, z: 1.4210854e-16}
+      rotation: {x: 0, y: -0.69861233, z: -0, w: 0.7155004}
+      scale: {x: 1, y: 1, z: 1}
+    - name: HandleEnd
+      parentName: HandleKnob
+      position: {x: -0.18949564, y: 0, z: -0.00000720854}
+      rotation: {x: -2.7490473e-18, y: -0.7291981, z: 2.7490473e-18, w: 0.68430275}
+      scale: {x: 1, y: 1, z: 1}
+    - name: BlastShuttersBase
+      parentName: Military_Hut(Clone)
+      position: {x: 0.0100825615, y: 4.9471807, z: 8.324221}
+      rotation: {x: 0.4663448, y: 0.884603, z: -2.561093e-17, w: -8.2721694e-17}
+      scale: {x: 1, y: 1, z: 1}
+    - name: BSLeftStart
+      parentName: BlastShuttersBase
+      position: {x: -3.33028, y: -0.05826326, z: 0}
+      rotation: {x: -6.394105e-17, y: -2.3317925e-17, z: -0.4635608, w: 0.8860651}
+      scale: {x: 1, y: 1, z: 1}
+    - name: BSLeftEnd
+      parentName: BSLeftStart
+      position: {x: -0.99006283, y: 0.005917976, z: 0}
+      rotation: {x: 0.0031446554, y: 0.99999505, z: -6.1039484e-17, w: -6.142459e-17}
+      scale: {x: 1, y: 1, z: 1}
+    - name: BSRightStart
+      parentName: BlastShuttersBase
+      position: {x: -1.2455057, y: -3.1034744, z: 0}
+      rotation: {x: 0.4802781, y: 0.87711626, z: -2.4299329e-17, w: -8.311643e-17}
+      scale: {x: 1, y: 1, z: 1}
+    - name: BSRightEnd
+      parentName: BSRightStart
+      position: {x: -1.0060639, y: 0.03299657, z: -6.82121e-15}
+      rotation: {x: 0.4802781, y: 0.87711626, z: -2.4299329e-17, w: -8.311643e-17}
+      scale: {x: 1, y: 1, z: 1}
+    - name: BlastDoorsBase
+      parentName: Military_Hut(Clone)
+      position: {x: 0.0038243912, y: -0.2882363, z: -7.0732217}
+      rotation: {x: -0.41412562, y: 0.9102197, z: -8.1092764e-17, w: -3.0377004e-17}
+      scale: {x: 1, y: 1, z: 1}
+    - name: BDLeftStart
+      parentName: BlastDoorsBase
+      position: {x: -3.0848193, y: -0.055982888, z: -6.828066e-15}
+      rotation: {x: 0, y: 0, z: 0.4156471, w: 0.909526}
+      scale: {x: 1, y: 1, z: 1}
+    - name: BDLeftEnd
+      parentName: BDLeftStart
+      position: {x: -1.7795249, y: -0.00023374613, z: -1.6479125e-16}
+      rotation: {x: 0.0016721981, y: 0.9999986, z: -6.1129865e-17, w: -6.133465e-17}
+      scale: {x: 1, y: 1, z: 1}
+    - name: BDRightStart
+      parentName: BlastDoorsBase
+      position: {x: -0.35682654, y: 3.0554895, z: 3.7418954e-16}
+      rotation: {x: -0.4172595, y: 0.90878737, z: -8.1196956e-17, w: -3.00974e-17}
+      scale: {x: 1, y: 1, z: 1}
+    - name: BDRightEnd
+      parentName: BDRightStart
+      position: {x: -1.7498432, y: -0.0004665956, z: -1.299409e-15}
+      rotation: {x: -0.4172595, y: 0.90878737, z: -8.1196956e-17, w: -3.00974e-17}
+      scale: {x: 1, y: 1, z: 1}
+    - name: GarageDoorBase
+      parentName: Military_Hut(Clone)
+      position: {x: -0, y: 0.2439895, z: -7.16848}
+      rotation: {x: -0.49978897, y: 0.50021094, z: -0.49978897, w: 0.50021094}
+      scale: {x: 1, y: 1, z: 1}
+    - name: GDSection1
+      parentName: GarageDoorBase
+      position: {x: -0.63971084, y: -1.8318679e-17, z: 0}
+      rotation: {x: 4.4850653e-31, y: -2.3782126e-20, z: -0.0003883916, w: 0.99999994}
+      scale: {x: 1, y: 1, z: 1}
+    - name: GDSection2
+      parentName: GDSection1
+      position: {x: -0.6432858, y: 1.8211603e-14, z: 0}
+      rotation: {x: 0, y: 0, z: 0.0001381006, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: GDSection3
+      parentName: GDSection2
+      position: {x: -0.63779294, y: -1.8624081e-13, z: 0}
+      rotation: {x: 1, y: -0.00026452242, z: -1.6197326e-20, w: 6.123234e-17}
+      scale: {x: 1, y: 1, z: 1}
+    - name: GDSection4
+      parentName: GDSection3
+      position: {x: -0.6389123, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0.00009139012, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: GDSectionTop
+      parentName: GDSection4
+      position: {x: -0.63705564, y: -1.9215615e-13, z: -1.4259931e-20}
+      rotation: {x: -0.49990788, y: 0.5000921, z: 0.49990788, w: 0.5000921}
+      scale: {x: 1, y: 1, z: 1}
+    - name: CameraBase1
+      parentName: Military_Hut(Clone)
+      position: {x: -1.4673612, y: 3.2718925, z: 9.019625}
+      rotation: {x: -0.49150568, y: 0.50835246, z: -0.49150568, w: 0.50835246}
+      scale: {x: 1, y: 1, z: 1}
+    - name: CameraStem1
+      parentName: CameraBase1
+      position: {x: -0.08962781, y: 0, z: 0}
+      rotation: {x: -0.47552532, y: 0.5331672, z: 0.465743, w: 0.5221991}
+      scale: {x: 1, y: 1, z: 1}
+    - name: CameraEnd1
+      parentName: CameraStem1
+      position: {x: -0.25041798, y: 0, z: 0}
+      rotation: {x: 0.028443122, y: -0.7065345, z: 0.028443122, w: 0.7065345}
+      scale: {x: 1, y: 1, z: 1}
+    - name: CameraBase2
+      parentName: Military_Hut(Clone)
+      position: {x: 2.127878, y: 3.6889236, z: -8.200987}
+      rotation: {x: 0.49150568, y: -0.50835246, z: -0.49150568, w: 0.50835246}
+      scale: {x: 1, y: 1, z: 1}
+    - name: CameraStem2
+      parentName: CameraBase2
+      position: {x: -0.08962781, y: 0, z: 0}
+      rotation: {x: -0.47536176, y: 0.53298384, z: 0.4659099, w: 0.52238625}
+      scale: {x: 1, y: 1, z: 1}
+    - name: CameraEnd2
+      parentName: CameraStem2
+      position: {x: -0.25041798, y: 0, z: 0}
+      rotation: {x: 0.028443122, y: -0.7065345, z: 0.028443122, w: 0.7065345}
+      scale: {x: 1, y: 1, z: 1}
     armTwist: 0.5
     foreArmTwist: 0.5
     upperLegTwist: 0.5
@@ -94,13 +533,13 @@ ModelImporter:
     globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
-    hasExtraRoot: 0
+    hasExtraRoot: 1
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
-  avatarSetup: 0
+  avatarSetup: 1
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   importBlendShapeDeformPercent: 1
   remapMaterialsIfMaterialImportModeIsNone: 0

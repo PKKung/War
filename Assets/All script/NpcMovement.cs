@@ -81,13 +81,23 @@ public class NPC_QueryMovement : MonoBehaviour
             // --- ช่วงมีระเบิดลง ---
             if (healthScript.currentState == NPCHealth.State.Injured)
             {
-                currentSpeed = walkSpeed * 0.5f; // บาดเจ็บ: เดินกะเผลกหนี (ช้ามาก)
+                currentSpeed = walkSpeed * 0.5f;
                 animator.SetBool("isRunning", false);
             }
             else
             {
-                currentSpeed = runSpeed; // ปกติ: วิ่งหนีสุดชีวิต
-                animator.SetBool("isRunning", true);
+                // ✅ เพิ่มเงื่อนไข: สั่งวิ่งเฉพาะตอนที่ "ยังมีทางให้ไป" เท่านั้น
+                if (hasPath)
+                {
+                    currentSpeed = runSpeed;
+                    animator.SetBool("isRunning", true);
+                }
+                else
+                {
+                    // ถ้าถึงที่หมาย (Safe Zone) แล้ว ให้หยุดวิ่ง
+                    currentSpeed = 0;
+                    animator.SetBool("isRunning", false);
+                }
             }
 
             if (!wasRunningToSafeZone)
@@ -98,15 +108,12 @@ public class NPC_QueryMovement : MonoBehaviour
         }
         else
         {
-            // --- ช่วงปกติ ---
+            // ... (ส่วนช่วงปกติเหมือนเดิม) ...
             if (wasRunningToSafeZone)
             {
                 wasRunningToSafeZone = false;
                 animator.SetBool("isRunning", false);
-
-                // ปรับความเร็วตามสถานะเลือดปัจจุบัน
                 currentSpeed = (healthScript.currentState == NPCHealth.State.Injured) ? walkSpeed * 0.5f : walkSpeed;
-
                 SetRandomDestination();
             }
         }
@@ -141,6 +148,11 @@ public class NPC_QueryMovement : MonoBehaviour
                 // ถ้าเดินปกติให้สุ่มต่อ ถ้าหนีระเบิดถึงเซฟโซนแล้วให้หยุด
                 if (!MissileRain.isMissileActive) SetRandomDestination();
                 else hasPath = false;
+                if (animator != null)
+                {
+                    animator.SetBool("isRunning", false);
+                    animator.SetFloat("Speed", 0f);
+                }
             }
         }
     }
