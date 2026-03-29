@@ -1,50 +1,84 @@
 ﻿using UnityEngine;
+using System.Collections.Generic; // เพิ่มตัวนี้เพื่อใช้ List
 
 public class SafeZoneTrigger : MonoBehaviour
 {
     [Header("Heal Settings")]
-    public float healAmount = 2f;      // เพิ่มเลือดวิละ 2
-    public float healInterval = 1f;    // ระยะเวลาห่างกัน (1 วินาที)
-    private float nextHealTime = 0f;
+    public float healAmount = 2f;
+    public float healInterval = 1f;
+    private float timer = 0f;
 
+    // เก็บรายชื่อคนติดอยู่ในโซน
+    private List<Collider> entitiesInZone = new List<Collider>();
+
+    void Update()
+    {
+        // นับเวลาถอยหลังใน Update แทน เพื่อให้แม่นยำ
+        timer += Time.deltaTime;
+
+        if (timer >= healInterval)
+        {
+            HealAllInZone();
+            timer = 0f;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("NPC") || other.CompareTag("Player"))
+        {
+            if (!entitiesInZone.Contains(other)) entitiesInZone.Add(other);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (entitiesInZone.Contains(other)) entitiesInZone.Remove(other);
+    }
+
+    private void HealAllInZone()
+    {
+        // วนลูปฮีลทุกคนที่อยู่ใน List
+        for (int i = entitiesInZone.Count - 1; i >= 0; i--)
+        {
+            Collider other = entitiesInZone[i];
+
+            // ถ้า Object ถูกลบไปแล้ว (เช่น NPC ตายแล้วหายไป) ให้เอาออกจากลิสต์
+            if (other == null)
+            {
+                entitiesInZone.RemoveAt(i);
+                continue;
+            }
+
+            // ฮีล NPC
+            if (other.CompareTag("NPC"))
+            {
+                var health = other.GetComponentInParent<NPCHealth>();
+                if (health == null) health = other.GetComponentInChildren<NPCHealth>();
+                if (health != null) health.Heal(healAmount);
+            }
+
+            // ฮีล Player
+            if (other.CompareTag("Player"))
+            {
+                var pHealth = other.GetComponentInParent<PlayerHealth>();
+                if (pHealth == null) pHealth = other.GetComponentInChildren<PlayerHealth>();
+                if (pHealth != null) pHealth.Heal(healAmount);
+            }
+        }
+    }
+
+    // --- ระบบจัดการ NPC (ใส่ไว้ใน OnTriggerStay เหมือนเดิมได้) ---
     private void OnTriggerStay(Collider other)
     {
-        // --- 1. ระบบ Heal Over Time (ทำงานทุกๆ 1 วินาที) ---
-        if (Time.time >= nextHealTime)
-        {
-            HandleHeal(other);
-            nextHealTime = Time.time + healInterval;
-        }
-
-        // --- 2. ระบบจัดการ NPC (เข้าโซน/สุ่มจุด/ล็อคตำแหน่ง) ---
         if (other.CompareTag("NPC"))
         {
             HandleNPCInSafeZone(other);
         }
     }
 
-    private void HandleHeal(Collider other)
-    {
-        // ฮีล NPC
-        if (other.CompareTag("NPC"))
-        {
-            var health = other.GetComponentInParent<NPCHealth>();
-            if (health == null) health = other.GetComponentInChildren<NPCHealth>();
-            if (health != null) health.Heal(healAmount);
-        }
-
-        // ฮีล Player
-        if (other.CompareTag("Player"))
-        {
-            var pHealth = other.GetComponentInParent<PlayerHealth>();
-            if (pHealth == null) pHealth = other.GetComponentInChildren<PlayerHealth>();
-            if (pHealth != null) pHealth.Heal(healAmount);
-        }
-    }
-
     private void HandleNPCInSafeZone(Collider other)
     {
-        // หา MoveScript และ Animator จากตัวพ่อหรือลูก
         var moveScript = other.GetComponentInParent<NPC_QueryMovement>();
         if (moveScript == null) moveScript = other.GetComponentInChildren<NPC_QueryMovement>();
 
@@ -55,27 +89,11 @@ public class SafeZoneTrigger : MonoBehaviour
         {
             bool isBeingCarried = animator.GetBool("isBeingCarried");
 
-            // ถ้ายังไม่ได้ถูกล็อคเป็น IsSafe
-            if (!moveScript.isSafe)
+            if (!moveScript.isSafe && !isBeingCarried)
             {
-                // เคส A: เดินเข้ามาเอง (ไม่ได้ถูกอุ้ม) -> สั่งสุ่มจุดเดินลึกเข้าไป
-                if (!isBeingCarried)
-                {
-                    moveScript.EnterSafeZone(transform.position, false);
-                    Debug.Log("<color=cyan>NPC Walk-in:</color> " + other.name + " is finding a spot.");
-                }
-                // เคส B: ถูกอุ้มอยู่แล้วเพิ่งถูกปล่อยวางลงพื้น -> สั่งหยุดนิ่งตรงนั้นเลย
-                else if (isBeingCarried == false) // เช็คซ้ำเพื่อความชัวร์ตอนจังหวะปล่อย
-                {
-                    // Logic นี้จะทำงานในเฟรมที่ปล่อยพอดี
-                }
-            }
-
-            // ตรวจจับจังหวะ "เพิ่งปล่อยวาง" ภายในโซน
-            if (!isBeingCarried && !moveScript.isSafe)
-            {
-                moveScript.EnterSafeZone(transform.position, true); // ส่ง true = หยุดนิ่งตรงที่วาง
-                Debug.Log("<color=yellow>NPC Dropped:</color> " + other.name + " locked at current position.");
+                // ถ้าไม่ได้ถูกอุ้ม และยังไม่ปลอดภัย (ทั้งเดินมาเอง หรือ เพิ่งถูกวาง)
+                // เราส่ง wasCarried ตามสถานะจริง ถ้าเพิ่งถูกวาง ตำแหน่งมันจะนิ่ง
+                moveScript.EnterSafeZone(transform.position, false);
             }
         }
     }
