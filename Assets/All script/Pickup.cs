@@ -51,7 +51,11 @@ public class PlayerCarry : MonoBehaviour
     {
         isCarrying = true;
         currentNPC.OnBeingPickedUp(carrySocket);
-
+        NPC_QueryMovement npcMovement = currentNPC.GetComponent<NPC_QueryMovement>();
+        if (npcMovement != null)
+        {
+            npcMovement.StartEscorting();
+        }
         if (playerAnimator != null)
         {
             // ? สั่ง SetBool

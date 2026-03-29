@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.Rendering;
 
 public class DeathCounter : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class DeathCounter : MonoBehaviour
 
     private NPCHealth[] allNPCHealths;
     private int lastCount = -1;
-
+    
     void Start()
     {
         FindHealthScripts();

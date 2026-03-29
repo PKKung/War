@@ -21,9 +21,12 @@ public class NPC_QueryMovement : MonoBehaviour
     private bool wasRunningToSafeZone = false;
     public bool isSafe = false;
 
+
     private NPCHealth healthScript;
     private NPCHealth.State lastHealthState;
     private Outline outlineComponent;
+    [Header("Sanity Check")]
+    public bool isEscortedByPlayer = false;
 
     void Start()
     {
@@ -196,7 +199,21 @@ public class NPC_QueryMovement : MonoBehaviour
     {
         if (isSafe) return; // กันรันซ้ำ
         isSafe = true;
+        if (wasCarried || isEscortedByPlayer)
+        {
+            if (SanityManager.Instance != null)
+            {
+                SanityManager.Instance.IncreaseSanity();
+                Debug.Log("<color=green>Sanity Increased! NPC saved by Player.</color>");
+            }
+        }
+        else
+        {
+            Debug.Log("<color=yellow>NPC entered alone. No Sanity reward.</color>");
+        }
 
+        // รีเซ็ตค่าเพื่อความปลอดภัย
+        isEscortedByPlayer = false;
         if (wasCarried)
         {
             // 🛑 อุ้มมาวาง = หยุดตรงนั้นเลย
@@ -228,7 +245,7 @@ public class NPC_QueryMovement : MonoBehaviour
     void SetRandomDestination()
     {
         if (isSafe) return;
-        int maxAttempts = 10;
+        int maxAttempts = 15;
         for (int i = 0; i < maxAttempts; i++)
         {
             Vector2 random2D = Random.insideUnitCircle * walkRadius;
@@ -297,5 +314,10 @@ public class NPC_QueryMovement : MonoBehaviour
             outlineComponent.enabled = true;
         else
             outlineComponent.enabled = false;
+    }
+    public void StartEscorting()
+    {
+        isEscortedByPlayer = true;
+        Debug.Log(gameObject.name + " is now being escorted by Player.");
     }
 }
