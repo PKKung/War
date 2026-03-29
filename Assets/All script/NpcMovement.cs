@@ -42,6 +42,7 @@ public class NPC_QueryMovement : MonoBehaviour
     {
         // 🛑 ป้องกัน Error ถ้าลืมใส่ NPCHealth
         if (healthScript == null) return;
+        if (animator.GetBool("isBeingCarried")) return;
 
         // 🛑 1. เช็กสถานะวิกฤต (ล้ม/ตาย) -> ต้องหยุดเดินทันที
         if (healthScript.currentState == NPCHealth.State.Down || healthScript.currentState == NPCHealth.State.Dead)
