@@ -25,7 +25,7 @@ public class SafeZoneTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("NPC") || other.CompareTag("Player"))
+        if (other.CompareTag("NPC") || other.CompareTag("Player") || other.CompareTag("Family"))
         {
             if (!entitiesInZone.Contains(other)) entitiesInZone.Add(other);
         }
@@ -51,7 +51,7 @@ public class SafeZoneTrigger : MonoBehaviour
             }
 
             // ฮีล NPC
-            if (other.CompareTag("NPC"))
+            if (other.CompareTag("NPC") || other.CompareTag("Family"))
             {
                 var health = other.GetComponentInParent<NPCHealth>();
                 if (health == null) health = other.GetComponentInChildren<NPCHealth>();
@@ -71,7 +71,7 @@ public class SafeZoneTrigger : MonoBehaviour
     // --- ระบบจัดการ NPC (ใส่ไว้ใน OnTriggerStay เหมือนเดิมได้) ---
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("NPC"))
+        if (other.CompareTag("NPC") || other.CompareTag("Family"))
         {
             HandleNPCInSafeZone(other);
         }

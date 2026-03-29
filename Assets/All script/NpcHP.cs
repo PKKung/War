@@ -42,9 +42,16 @@ public class NPCHealth : MonoBehaviour
             currentState = State.Dead;
 
             // 🔥 ใส่ตรงนี้: เรียก SanityManager ให้ลดค่าสติเมื่อ NPC ตัวนี้ตาย
-            if (SanityManager.Instance != null)
+            if (gameObject.CompareTag("Family"))
             {
-                SanityManager.Instance.DecreaseSanity();
+                // ลดฮวบ 20 (เราสามารถเขียนฟังก์ชันใหม่ หรือเรียกตัวเดิม 2 รอบก็ได้)
+                // แต่แนะนำให้สร้างฟังก์ชันเฉพาะใน SanityManager จะดีกว่า
+                SanityManager.Instance.DecreaseSanityFamily();
+                Debug.Log("<color=red>สมาชิกในครอบครัวตาย! ลดค่าสติรุนแรง</color>");
+            }
+            else
+            {
+                SanityManager.Instance.DecreaseSanity(); // ลดปกติ (10)
             }
         }
         else if (currentHP <= 0)

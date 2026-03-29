@@ -43,6 +43,7 @@ public class SanityManager : MonoBehaviour
         currentSanity = Mathf.Clamp(currentSanity, 0, maxSanity); // ไม่ให้เกิน Max
         UpdateUI();
         Debug.Log("<color=green>[Sanity] ช่วย NPC ได้! ค่าสติเพิ่มขึ้น</color>");
+      
     }
 
     void UpdateUI()
@@ -55,5 +56,13 @@ public class SanityManager : MonoBehaviour
         {
             Debug.LogError("Mental Breakdown! Game Over");
         }
+    }
+    // เพิ่มใน SanityManager.cs
+    public void DecreaseSanityFamily()
+    {
+        currentSanity -= 30f; // หรือตั้งตัวแปร penaltyFamilyDeath ก็ได้
+        currentSanity = Mathf.Clamp(currentSanity, 0, maxSanity);
+        // UpdateUI() จะทำงานอัตโนมัติถ้าใส่ไว้ใน Update หรือเรียกใช้ตรงนี้
+        UpdateUI();
     }
 }
