@@ -16,6 +16,7 @@ public class NPCHealth : MonoBehaviour
     public State currentState;
     private State lastState;
     private Animator animator;
+    private NPC_QueryMovement moveScript; // อ้างอิงสคริปต์เคลื่อนที่เพื่อเช็ก isSafe
 
     void Start()
     {
@@ -23,12 +24,13 @@ public class NPCHealth : MonoBehaviour
         currentState = State.Normal;
         lastState = State.Normal;
         animator = GetComponent<Animator>();
+        moveScript = GetComponent<NPC_QueryMovement>(); // ดึงสคริปต์มาเก็บไว้
     }
 
     void Update()
     {
         UpdateState();
-        HandleBleeding(); // ? เพิ่มระบบเลือดไหล
+        HandleBleeding();
         SyncAnimator();
     }
 
@@ -40,21 +42,38 @@ public class NPCHealth : MonoBehaviour
         else currentState = State.Normal;
     }
 
-    // ? ฟังก์ชันจัดการเลือดไหล
     void HandleBleeding()
     {
-        // ถ้าสถานะคือ Down (เลือดต่ำกว่า 50) และยังไม่ตาย
         if (currentState == State.Down && currentHP > 0)
         {
             bleedTimer += Time.deltaTime;
-
-            if (bleedTimer >= 1f) // ครบ 1 วินาที
+            if (bleedTimer >= 1f)
             {
-                currentHP -= bleedDamage; // ลดเลือด
+                currentHP -= bleedDamage;
                 if (currentHP < 0) currentHP = 0;
-                bleedTimer = 0f; // รีเซ็ตตัวนับเวลา
+                bleedTimer = 0f;
+            }
+        }
+    }
 
-                Debug.Log($"NPC is bleeding... Remaining HP: {currentHP}");
+    // --- ฟังก์ชัน Heal ที่เพิ่มเข้ามา ---
+    public void Heal(float amount)
+    {
+        if (currentState == State.Dead) return; // ตายแล้วไม่ฟื้น
+
+        currentHP += amount;
+        if (currentHP > maxHP) currentHP = maxHP;
+
+        // ??? เงื่อนไขพิเศษ: ถ้าอยู่ใน Safe Zone และเลือดพ้นสถานะ Down (> 50) ให้ลุกทันที
+        if (moveScript != null && moveScript.isSafe && currentHP >= 50f)
+        {
+            if (animator != null && currentState == State.Down)
+            {
+                // สั่งให้ข้ามไปท่า Idle (หรือชื่อท่าปกติของคุณ) ทันที
+                animator.CrossFadeInFixedTime("Idle", 0.2f);
+
+                // ถ้าคุณมี Parameter แบบ Bool ใน Animator ให้ Reset ตรงนี้ด้วย
+                animator.SetBool("isDown", false);
             }
         }
     }

@@ -11,7 +11,7 @@ public class NPC_QueryMovement : MonoBehaviour
 
     [Header("Safe Zone")]
     public GameObject safeZone;
-
+    private NavMeshAgent agent; // 🟢 แก้ไข: ตัวแปรสำหรับคุม NavMeshAgent
     private NavMeshPath path;
     private int currentCorner = 0;
     private bool hasPath = false;
@@ -19,12 +19,16 @@ public class NPC_QueryMovement : MonoBehaviour
     private Vector3 lastPosition;
     private float currentSpeed;
     private bool wasRunningToSafeZone = false;
+    public bool isSafe = false;
 
     private NPCHealth healthScript;
     private NPCHealth.State lastHealthState;
+    private Outline outlineComponent;
 
     void Start()
     {
+        // 🛠️ 1. ดึง Component Agent มาเก็บไว้ก่อน กัน Error
+        agent = GetComponent<NavMeshAgent>();
         path = new NavMeshPath();
         animator = GetComponent<Animator>();
         healthScript = GetComponent<NPCHealth>();
@@ -34,52 +38,66 @@ public class NPC_QueryMovement : MonoBehaviour
         lastPosition = transform.position;
         currentSpeed = walkSpeed;
 
+        outlineComponent = GetComponent<Outline>();
+        if (outlineComponent != null) outlineComponent.enabled = false;
+
         // เริ่มต้นให้สุ่มทางเดินทันที
         SetRandomDestination();
     }
 
     void Update()
     {
-        // 🛑 ป้องกัน Error ถ้าลืมใส่ NPCHealth
         if (healthScript == null) return;
+        UpdateOutlineStatus();
+
+        // 🛑 ถ้าถูกอุ้มอยู่ ไม่ต้องทำอะไรเลย
         if (animator.GetBool("isBeingCarried")) return;
 
-        // 🛑 1. เช็กสถานะวิกฤต (ล้ม/ตาย) -> ต้องหยุดเดินทันที
+        // 🛑 เช็กสถานะวิกฤต (ล้ม/ตาย) หรือปลอดภัยแล้วแต่ถึงที่หมายแล้ว -> หยุดเดิน
+        // แก้ไข: เอา isSafe ออกจากตรงนี้เพื่อให้มันเดินไปจุดสุ่มข้างในก่อนค่อยหยุด
         if (healthScript.currentState == NPCHealth.State.Down || healthScript.currentState == NPCHealth.State.Dead)
         {
             StopMovement();
             return;
         }
 
-        // ✨ 2. ระบบตรวจจับการเปลี่ยนสถานะเลือด (เช่น เพิ่งโดนระเบิดจนบาดเจ็บ)
+        // ✨ ระบบตรวจจับการเปลี่ยนสถานะเลือด
         if (healthScript.currentState != lastHealthState)
         {
             OnHealthStateChanged();
             lastHealthState = healthScript.currentState;
         }
 
-        // 🏃 3. อัปเดตตรรกะการวิ่งหนีหรือเดินปกติ
+        // 🏃 อัปเดตตรรกะการเคลื่อนที่
         HandleMissileState();
         MoveAlongPath();
         UpdateAnimation();
+        
     }
 
     void OnHealthStateChanged()
     {
-        // เมื่อสถานะเปลี่ยน (เช่น Normal -> Injured) ให้หาทางใหม่ทันทีด้วยความเร็วใหม่
+        if (healthScript.currentState == NPCHealth.State.Down || healthScript.currentState == NPCHealth.State.Dead)
+        {
+            StopMovement();
+            return;
+        }
+
+        // ถ้าปลอดภัยแล้ว ไม่ต้องสุ่มจุดใหม่ตามสถานะเลือด
+        if (isSafe) return;
+
         if (wasRunningToSafeZone) SetSafeZoneDestination();
         else SetRandomDestination();
-
-        Debug.Log($"{gameObject.name}: Health state changed to {healthScript.currentState}. Recalculating...");
     }
 
     void HandleMissileState()
     {
+        if (isSafe) return; // ถ้าปลอดภัยแล้ว ไม่ต้องวิ่งหนีระเบิดอีก
+
         bool isMissile = MissileRain.isMissileActive;
 
         if (isMissile)
         {
-            // --- ช่วงมีระเบิดลง ---
             if (healthScript.currentState == NPCHealth.State.Injured)
             {
                 currentSpeed = walkSpeed * 0.5f;
@@ -87,7 +105,6 @@ public class NPC_QueryMovement : MonoBehaviour
             }
             else
             {
-                // ✅ เพิ่มเงื่อนไข: สั่งวิ่งเฉพาะตอนที่ "ยังมีทางให้ไป" เท่านั้น
                 if (hasPath)
                 {
                     currentSpeed = runSpeed;
@@ -95,7 +112,6 @@ public class NPC_QueryMovement : MonoBehaviour
                 }
                 else
                 {
-                    // ถ้าถึงที่หมาย (Safe Zone) แล้ว ให้หยุดวิ่ง
                     currentSpeed = 0;
                     animator.SetBool("isRunning", false);
                 }
@@ -104,33 +120,22 @@ public class NPC_QueryMovement : MonoBehaviour
             if (!wasRunningToSafeZone)
             {
                 wasRunningToSafeZone = true;
+                CancelInvoke(nameof(SetRandomDestination));
                 SetSafeZoneDestination();
-            }
-        }
-        else
-        {
-            // ... (ส่วนช่วงปกติเหมือนเดิม) ...
-            if (wasRunningToSafeZone)
-            {
-                wasRunningToSafeZone = false;
-                animator.SetBool("isRunning", false);
-                currentSpeed = (healthScript.currentState == NPCHealth.State.Injured) ? walkSpeed * 0.5f : walkSpeed;
-                SetRandomDestination();
             }
         }
     }
 
     void MoveAlongPath()
     {
+        // ถ้านิ่งแล้ว หรือไม่มีทาง ก็ไม่ต้องเคลื่อนที่
         if (!hasPath || path.corners.Length == 0) return;
 
         Vector3 nextPoint = path.corners[currentCorner];
         Vector3 direction = (nextPoint - transform.position).normalized;
 
-        // เคลื่อนที่ตามความเร็วปัจจุบัน
         transform.position += direction * currentSpeed * Time.deltaTime;
 
-        // หมุนตัวไปตามทิศทาง
         if (direction != Vector3.zero)
         {
             transform.rotation = Quaternion.Slerp(
@@ -140,27 +145,45 @@ public class NPC_QueryMovement : MonoBehaviour
             );
         }
 
-        // เช็กว่าถึงจุดหักมุมหรือยัง
         if (Vector3.Distance(transform.position, nextPoint) < 0.3f)
         {
             currentCorner++;
             if (currentCorner >= path.corners.Length)
             {
-                // ถ้าเดินปกติให้สุ่มต่อ ถ้าหนีระเบิดถึงเซฟโซนแล้วให้หยุด
-                if (!MissileRain.isMissileActive) SetRandomDestination();
-                else hasPath = false;
-                if (animator != null)
+                hasPath = false;
+
+                // 🟢 ถ้าถึงที่หมายตอน Safe แล้ว ให้หยุดนิ่งถาวร
+                if (isSafe)
                 {
-                    animator.SetBool("isRunning", false);
-                    animator.SetFloat("Speed", 0f);
+                    StopMovement();
+                }
+                else if (!MissileRain.isMissileActive)
+                {
+                    SetRandomDestination();
                 }
             }
         }
     }
 
-    void StopMovement()
+    public void StopMovement()
     {
         hasPath = false;
+        CancelInvoke(nameof(SetRandomDestination));
+
+        // 🛠️ ปิด Agent และหยุดความเร็วทั้งหมด
+        if (agent != null && agent.isActiveAndEnabled)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+        }
+
+        var rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.velocity = Vector3.zero;
+            rb.isKinematic = true;
+        }
+
         if (animator != null)
         {
             animator.SetFloat("Speed", 0f);
@@ -168,11 +191,43 @@ public class NPC_QueryMovement : MonoBehaviour
         }
     }
 
-    // ==========================================
-    // 🎯 ระบบสุ่มทางแบบ "ตื้อไม่เลิก" (จาก Code 1)
-    // ==========================================
+    // 🟢 ฟังก์ชันใหม่: จัดการตอนเข้า Safe Zone (แบบที่นายต้องการ)
+    public void EnterSafeZone(Vector3 zoneCenter, bool wasCarried)
+    {
+        if (isSafe) return; // กันรันซ้ำ
+        isSafe = true;
+
+        if (wasCarried)
+        {
+            // 🛑 อุ้มมาวาง = หยุดตรงนั้นเลย
+            StopMovement();
+            Debug.Log(gameObject.name + " [Dropped] Standing still.");
+        }
+        else
+        {
+            // 🚶 เดินมาเอง = สุ่มจุดลึกเข้าไปข้างใน
+            float randomRadius = 5f;
+            Vector3 randomPos = zoneCenter + (Random.insideUnitSphere * randomRadius);
+
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(randomPos, out hit, randomRadius, NavMesh.AllAreas))
+            {
+                // ใช้ระบบ Path เดิมของนายในการเดินไปจุดสุ่ม
+                if (NavMesh.CalculatePath(transform.position, hit.position, NavMesh.AllAreas, path))
+                {
+                    currentCorner = 0;
+                    hasPath = true;
+                    currentSpeed = walkSpeed; // เดินไปชิลๆ ข้างใน
+                    Debug.Log(gameObject.name + " [Walk-in] Moving deeper...");
+                }
+            }
+        }
+    }
+
+    // --- ส่วนสุ่มทางเดิมของนาย ---
     void SetRandomDestination()
     {
+        if (isSafe) return;
         int maxAttempts = 10;
         for (int i = 0; i < maxAttempts; i++)
         {
@@ -188,24 +243,20 @@ public class NPC_QueryMovement : MonoBehaviour
                     {
                         currentCorner = 0;
                         hasPath = true;
-                        return; // เจอทางแล้ว ออกจากฟังก์ชันเลย
+                        return;
                     }
                 }
             }
         }
-
-        // ถ้าวน Loop 10 รอบแล้วยังไม่เจอทาง ให้รอ 1 วินาทีแล้วลองใหม่ (นี่คือจุดที่ทำให้เดินครบทุกตัว)
         hasPath = false;
         Invoke(nameof(SetRandomDestination), 1f);
     }
 
     void SetSafeZoneDestination()
     {
-        if (safeZone == null) return;
-
+        if (isSafe || safeZone == null) return;
         BoxCollider box = safeZone.GetComponent<BoxCollider>();
         int maxAttempts = 10;
-
         for (int i = 0; i < maxAttempts; i++)
         {
             Vector3 center = box.center;
@@ -213,7 +264,6 @@ public class NPC_QueryMovement : MonoBehaviour
             float x = Random.Range(-size.x / 2f, size.x / 2f);
             float z = Random.Range(-size.z / 2f, size.z / 2f);
             Vector3 randomPos = safeZone.transform.TransformPoint(new Vector3(x, 0f, z) + center);
-
             NavMeshHit hit;
             if (NavMesh.SamplePosition(randomPos, out hit, 20f, NavMesh.AllAreas))
             {
@@ -228,19 +278,24 @@ public class NPC_QueryMovement : MonoBehaviour
                 }
             }
         }
-
         hasPath = false;
     }
 
     void UpdateAnimation()
     {
         if (animator == null) return;
-
-        // คำนวณความเร็วที่เคลื่อนที่จริง
         float speed = (transform.position - lastPosition).magnitude / Time.deltaTime;
         float smoothSpeed = Mathf.Lerp(animator.GetFloat("Speed"), speed, 10f * Time.deltaTime);
-
         animator.SetFloat("Speed", smoothSpeed);
         lastPosition = transform.position;
+    }
+
+    void UpdateOutlineStatus()
+    {
+        if (outlineComponent == null || healthScript == null) return;
+        if (healthScript.currentState == NPCHealth.State.Down || healthScript.currentState == NPCHealth.State.Injured)
+            outlineComponent.enabled = true;
+        else
+            outlineComponent.enabled = false;
     }
 }

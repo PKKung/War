@@ -1,61 +1,65 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.AI; // ต้องมีตัวนี้เพราะเราจะใช้ Warp
+using UnityEngine.AI;
 
 public class NPCSpawner : MonoBehaviour
 {
     [Header("Prefab Settings")]
-    public List<GameObject> npcPrefabs; // ลากตัวละคร 10 แบบมาใส่
+    public List<GameObject> npcPrefabs;
     public int spawnCount = 10;
 
-    [Header("Spawn Area")]
-    public GameObject warZone; // Object ที่มี Box Collider
+    [Header("Spawn Points Settings")]
+    // ลาก SpawnPointHolder มาใส่ หรือจะให้มันหาเองก็ได้
+    public List<Transform> spawnPoints = new List<Transform>();
 
     void Start()
     {
+        // ถ้าไม่ได้ลากใส่ไว้ ให้มันหาลูกๆ ของมันเองอัตโนมัติ
+        if (spawnPoints.Count == 0)
+        {
+            foreach (Transform child in transform)
+            {
+                spawnPoints.Add(child);
+            }
+        }
+
         SpawnNPCs();
     }
 
     void SpawnNPCs()
     {
-        if (warZone == null || npcPrefabs.Count == 0) return;
+        if (spawnPoints.Count == 0 || npcPrefabs.Count == 0)
+        {
+            Debug.LogWarning("ไม่มีจุดเกิดหรือไม่มี Prefab นะจ๊ะ!");
+            return;
+        }
 
-        BoxCollider collider = warZone.GetComponent<BoxCollider>();
-        if (collider == null) return;
-
-        Bounds bounds = collider.bounds;
+        // สร้าง List สำรองเพื่อไม่ให้ NPC เกิดซ้ำจุดเดิม (ถ้าจุดเกิดมีมากกว่าจำนวน NPC)
+        List<Transform> availablePoints = new List<Transform>(spawnPoints);
 
         for (int i = 0; i < spawnCount; i++)
         {
-            // 1. สุ่ม X และ Z ภายในขอบเขตของกล่อง
-            float randomX = Random.Range(bounds.min.x, bounds.max.x);
-            float randomZ = Random.Range(bounds.min.z, bounds.max.z);
+            if (availablePoints.Count == 0) break; // จุดเกิดหมดแล้ว
 
-            // --- ส่วนที่แก้ไข: การสุ่ม Y Position ---
-            // บังคับให้จุดต่ำสุดไม่น้อยกว่า 0 (แก้ปัญหา Y ติดลบ)
-            float minY = Mathf.Max(bounds.min.y, 3f);
-            // บังคับให้จุดสูงสุดไม่เกิน 6
-            float maxY = Mathf.Min(bounds.max.y, 6f);
+            // 1. สุ่มเลือกจุดเกิดจาก List
+            int randomIndex = Random.Range(0, availablePoints.Count);
+            Transform targetPoint = availablePoints[randomIndex];
 
-            // สุ่มค่า Y ระหว่างช่วงที่กำหนดไว้ข้างบน
-            float randomY = Random.Range(minY, maxY);
-            // ---------------------------------------
-
-            Vector3 spawnPos = new Vector3(randomX, randomY, randomZ);
-
-            // 3. สุ่มเลือกตัวละคร
+            // 2. สุ่มเลือก NPC
             GameObject prefab = npcPrefabs[Random.Range(0, npcPrefabs.Count)];
 
-            // 4. สร้างตัวละคร
-            GameObject npc = Instantiate(prefab, spawnPos, Quaternion.identity);
+            // 3. สร้าง NPC
+            GameObject npc = Instantiate(prefab, targetPoint.position, targetPoint.rotation);
 
-            // 5. วาร์ปลง NavMesh
+            // 4. เซ็ต NavMeshAgent ให้วาร์ปไปจุดนั้น
             NavMeshAgent agent = npc.GetComponent<NavMeshAgent>();
             if (agent != null)
             {
-                agent.Warp(spawnPos);
+                agent.Warp(targetPoint.position);
             }
+
+            // 5. เอาจุดที่ใช้แล้วออก (เพื่อไม่ให้เกิดซ้อนกัน)
+            availablePoints.RemoveAt(randomIndex);
         }
     }
 }
-    
