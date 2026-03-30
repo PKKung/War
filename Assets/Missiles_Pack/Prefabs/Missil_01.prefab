@@ -158,8 +158,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissileExplosion
   explosionPrefab: {fileID: 100002, guid: 6ecf76dc4f268d340b2666896a954bcc, type: 3}
   explosionSound: {fileID: 8300000, guid: fbbdf279a90b8764b94dae24cef169a9, type: 3}
-  explosionRadius: 8
+  explosionRadius: 15
   maxDamage: 100
+  sanityPanicRadius: 40
+  maxSanityLoss: 30
+  minSanityLoss: 5
 --- !u!82 &820327755932478748
 AudioSource:
   m_ObjectHideFlags: 0

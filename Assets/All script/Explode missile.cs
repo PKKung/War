@@ -5,9 +5,17 @@ public class MissileExplosion : MonoBehaviour
     public GameObject explosionPrefab;
     public AudioClip explosionSound;
 
-    [Header("Explosion Settings")]
-    public float explosionRadius = 7f; // รัศมีระเบิด
-    public float maxDamage = 100f;      // ดาเมจแรงสุด (ตรงกลาง)
+    [Header("Explosion Damage Settings")]
+    public float explosionRadius = 7f; // รัศมีทำดาเมจ (ตาย/เจ็บ)
+    public float maxDamage = 100f;      // ดาเมจแรงสุด
+
+    [Header("Sanity Panic Settings")]
+    [Tooltip("ระยะที่ระเบิดตกแล้วยังทำให้ผู้เล่นเสียสติ (ควรมากกว่ารัศมีดาเมจ)")]
+    public float sanityPanicRadius = 20f;
+    [Tooltip("ค่าสติที่ลดลงมากที่สุดเมื่อระเบิดลงข้างตัวพอดี")]
+    public float maxSanityLoss = 20f;
+    [Tooltip("ค่าสติที่ลดลงน้อยที่สุดเมื่ออยู่เกือบสุดขอบรัศมี")]
+    public float minSanityLoss = 2f;
 
     AudioSource audioSource;
 
@@ -19,7 +27,6 @@ public class MissileExplosion : MonoBehaviour
     void Update()
     {
         float height = transform.position.y;
-        // ยิ่งใกล้พื้น → เสียงดังขึ้น (อิงตามความสูง 150m ตามที่คุณตั้งไว้)
         float volume = Mathf.Clamp01(1f - (height / 150f));
         if (audioSource != null) audioSource.volume = volume;
     }
@@ -31,57 +38,90 @@ public class MissileExplosion : MonoBehaviour
 
     void Explode()
     {
-        // 1. สร้าง Effect ระเบิด
         if (explosionPrefab != null)
             Instantiate(explosionPrefab, transform.position, Quaternion.identity);
 
-        // 2. เสียงระเบิด
         if (explosionSound != null)
             AudioSource.PlayClipAtPoint(explosionSound, transform.position);
 
-        // 3. ✨ ระบบสร้างดาเมจแบบรัศมี (Area of Effect)
+        // 1. คำนวณดาเมจให้ NPC และ Player (ของเดิม)
         ApplyDamage();
 
-        // 4. ทำลายลูกระเบิด
+        // 2. ✨ คำนวณการลดค่าสติของผู้เล่นตามระยะห่าง (เพิ่มใหม่)
+        ApplySanityPanic();
+
         Destroy(gameObject);
     }
 
     void ApplyDamage()
     {
-        // หาวัตถุที่มี Collider ทั้งหมดในรัศมีระเบิด
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
 
         foreach (Collider hit in colliders)
         {
-            // คำนวณความห่างและดาเมจพื้นฐาน
             float distance = Vector3.Distance(transform.position, hit.transform.position);
             float damageMultiplier = 1f - Mathf.Clamp01(distance / explosionRadius);
             float finalDamage = maxDamage * damageMultiplier;
 
-            // --- 1. เช็กว่าเป็น Player หรือไม่ ---
             PlayerHealth playerHealth = hit.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
-                // ส่งดาเมจไปที่สคริปต์ PlayerHealth (ขั้นต่ำ 5)
                 playerHealth.TakeDamage(Mathf.Max(finalDamage, 5f));
-                Debug.Log($"<color=cyan>Hit Player!</color> Damage: {finalDamage}");
-                continue; // ถ้าเจอ Player แล้วให้ข้ามไปเช็กตัวถัดไปเลย ไม่ต้องเช็ก NPC ซ้ำในตัวเดียวกัน
+                continue;
             }
 
-            // --- 2. เช็กว่าเป็น NPC หรือไม่ ---
             NPCHealth npcHealth = hit.GetComponent<NPCHealth>();
             if (npcHealth != null)
             {
                 npcHealth.TakeDamage(Mathf.Max(finalDamage, 5f));
-                Debug.Log($"Hit NPC: {hit.name} | Damage: {finalDamage}");
             }
         }
     }
 
-    // 🎨 วาดวงกลมสีแดงในหน้า Scene เพื่อให้ Dev เห็นรัศมีระเบิดง่ายขึ้น
+    // 🔥 ฟังก์ชันใหม่: คำนวณการลดค่าสติแบบละเอียด
+    void ApplySanityPanic()
+    {
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player == null) return;
+
+        float distToPlayer = Vector3.Distance(transform.position, player.transform.position);
+
+        // เช็กว่าอยู่ในรัศมีที่ทำให้สติลดไหม
+        if (distToPlayer <= sanityPanicRadius)
+        {
+            // คำนวณค่า T (0 = ใกล้มาก, 1 = ขอบวง)
+            float t = Mathf.Clamp01(distToPlayer / sanityPanicRadius);
+
+            // ใช้ Lerp เพื่อหาค่าลดสติ: ยิ่งใกล้ ยิ่งลดเข้าใกล้ maxSanityLoss
+            float finalSanityLoss = Mathf.Lerp(maxSanityLoss, minSanityLoss, t);
+
+            if (SanityManager.Instance != null)
+            {
+                SanityManager.Instance.currentSanity -= finalSanityLoss;
+
+                // ป้องกันสติไม่ให้ติดลบ
+                if (SanityManager.Instance.currentSanity < 0)
+                    SanityManager.Instance.currentSanity = 0;
+
+                Debug.Log($"<color=yellow>[Explosion Panic] ระยะ: {distToPlayer:F1}m | ลดสติ: {finalSanityLoss:F1}</color>");
+            }
+
+            // ส่งข้อมูลไปให้ AI วิเคราะห์ (ความกดดันจากสิ่งแวดล้อม)
+            if (AnalyticsManager.Instance != null)
+            {
+                AnalyticsManager.Instance.LogEvent("EXPLOSION_PANIC", "Explosive", SanityManager.Instance.currentSanity, distToPlayer);
+            }
+        }
+    }
+
     private void OnDrawGizmosSelected()
     {
+        // วงกลมสีแดง = รัศมีดาเมจ (อันตรายถึงชีวิต)
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explosionRadius);
+
+        // วงกลมสีเหลือง = รัศมีลดค่าสติ (ความกดดันทางจิตใจ)
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, sanityPanicRadius);
     }
 }

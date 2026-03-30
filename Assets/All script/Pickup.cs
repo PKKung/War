@@ -34,7 +34,7 @@ public class PlayerCarry : MonoBehaviour
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, interactRange);
         foreach (var hit in hitColliders)
         {
-            if (hit.CompareTag("NPC"))
+            if (hit.CompareTag("NPC") || hit.CompareTag("Family"))
             {
                 NPC_Carriable carriable = hit.GetComponent<NPC_Carriable>();
                 if (carriable != null && carriable.CanBePickedUp())

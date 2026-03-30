@@ -378,8 +378,8 @@ LODGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4675573491783898455}
   serializedVersion: 2
-  m_LocalReferencePoint: {x: -0.0034071803, y: 0.87420857, z: 0.05159864}
-  m_Size: 2.0522068
+  m_LocalReferencePoint: {x: -0.0032692552, y: 0.86950195, z: 0.045027286}
+  m_Size: 2.0427935
   m_FadeMode: 0
   m_AnimateCrossFading: 0
   m_LastLODIsBillboard: 0
@@ -490,7 +490,9 @@ MonoBehaviour:
   runSpeed: 8
   walkRadius: 20
   safeZone: {fileID: 8726060932828587593, guid: 47774b42fd101d146b18e188819531b0, type: 3}
+  agent: {fileID: 8161638477209437045}
   isSafe: 0
+  isEscortedByPlayer: 0
 --- !u!114 &1733008575348983180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -505,7 +507,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HP
   maxHP: 100
   currentHP: 100
-  bleedDamage: 1
+  bleedDamage: 0.5
   currentState: 0
 --- !u!136 &7243371650141089547
 CapsuleCollider:
@@ -584,7 +586,7 @@ MonoBehaviour:
   outlineMode: 0
   outlineColor: {r: 1, g: 0, b: 0, a: 1}
   outlineWidth: 2
-  precomputeOutline: 0
+  precomputeOutline: 1
   bakeKeys: []
   bakeValues: []
 --- !u!4 &4871963903114828160 stripped

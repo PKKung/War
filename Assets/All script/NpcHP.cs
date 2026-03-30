@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.AI;
 
 public class NPCHealth : MonoBehaviour
 {
@@ -36,31 +37,89 @@ public class NPCHealth : MonoBehaviour
 
     void UpdateState()
     {
-        // เช็คก่อนว่า "ก่อนหน้านี้ยังไม่ตาย" แต่ "ตอนนี้เลือดหมดแล้ว"
-        if (currentHP <= 0 && currentState != State.Dead)
-        {
-            currentState = State.Dead;
+        // 1. คำนวณ State ที่ควรจะเป็นในเฟรมนี้ก่อน
+        State nextState;
 
-            // 🔥 ใส่ตรงนี้: เรียก SanityManager ให้ลดค่าสติเมื่อ NPC ตัวนี้ตาย
-            if (gameObject.CompareTag("Family"))
-            {
-                // ลดฮวบ 20 (เราสามารถเขียนฟังก์ชันใหม่ หรือเรียกตัวเดิม 2 รอบก็ได้)
-                // แต่แนะนำให้สร้างฟังก์ชันเฉพาะใน SanityManager จะดีกว่า
-                SanityManager.Instance.DecreaseSanityFamily();
-                Debug.Log("<color=red>สมาชิกในครอบครัวตาย! ลดค่าสติรุนแรง</color>");
-            }
-            else
-            {
-                SanityManager.Instance.DecreaseSanity(); // ลดปกติ (10)
-            }
-        }
-        else if (currentHP <= 0)
+        if (currentHP <= 0)
+            nextState = State.Dead;
+        else if (currentHP < 50)
+            nextState = State.Down;
+        else if (currentHP < 75)
+            nextState = State.Injured;
+        else
+            nextState = State.Normal;
+
+        // 2. 🔥 ตรวจสอบ: ถ้า State ใหม่ ไม่เหมือนเดิม ถึงจะเริ่มทำงาน (ป้องกันการรันรัวๆ)
+        if (nextState != currentState)
         {
-            currentState = State.Dead; // ถ้าตายอยู่แล้วก็ให้เป็น Dead ต่อไป
+            // บันทึก State เก่าไว้เผื่อใช้ (ถ้าจำเป็น)
+            lastState = currentState;
+            // อัปเดต State ปัจจุบัน
+            currentState = nextState;
+
+            // 3. รัน Logic เฉพาะตอนที่ "เพิ่งเปลี่ยนสถานะ" ครั้งเดียว
+            HandleStateChange(currentState);
         }
-        else if (currentHP < 50) currentState = State.Down;
-        else if (currentHP < 75) currentState = State.Injured;
-        else currentState = State.Normal;
+    }
+
+    // แยก Logic การทำงานออกมาเพื่อให้โค้ดสะอาดและไม่รันซ้ำซ้อน
+    void HandleStateChange(State newState)
+    {
+        switch (newState)
+        {
+            case State.Dead:
+                OnNPCDied();
+                break;
+
+            case State.Down:
+                Debug.Log(gameObject.name + " เข้าสู่สถานะ Down");
+                // สั่งปิดระบบเดินทันทีที่ล้ม
+                if (moveScript != null && moveScript.agent != null)
+                    moveScript.agent.enabled = false;
+                break;
+
+            case State.Injured:
+                Debug.Log(gameObject.name + " บาดเจ็บ");
+                break;
+
+            case State.Normal:
+                Debug.Log(gameObject.name + " กลับสู่สถานะปกติ");
+                break;
+        }
+    }
+
+    // Logic ตอนตาย (ย้ายมาจาก UpdateState เดิม)
+    void OnNPCDied()
+    {
+        float distToPlayer = 0f;
+        float sanityTraumaRadius = 25f;
+        GameObject player = GameObject.FindWithTag("Player");
+
+        if (player != null)
+        {
+            distToPlayer = Vector3.Distance(transform.position, player.transform.position);
+        }
+
+        // จัดการค่า Sanity
+        if (gameObject.CompareTag("Family"))
+        {
+            SanityManager.Instance.DecreaseSanityFamily();
+            Debug.Log($"<color=red>เสียใจรุนแรง: ครอบครัวตาย!</color>");
+        }
+        else
+        {
+            if (distToPlayer <= sanityTraumaRadius)
+            {
+                SanityManager.Instance.DecreaseSanity();
+                Debug.Log($"<color=orange>คนแปลกหน้าตายต่อหน้า</color>");
+            }
+        }
+
+        // Analytics
+        if (AnalyticsManager.Instance != null)
+        {
+            AnalyticsManager.Instance.LogEvent("DIED", gameObject.tag, SanityManager.Instance.currentSanity, distToPlayer);
+        }
     }
 
     void HandleBleeding()

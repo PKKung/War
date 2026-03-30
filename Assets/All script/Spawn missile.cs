@@ -22,6 +22,7 @@ public class MissileRain : MonoBehaviour
     IEnumerator SpawnWaves()
     {
         isMissileActive = true; // 🚨 เริ่มระเบิด
+        TargetRandomFamilyMember();
 
         for (int wave = 0; wave < totalWaves; wave++)
         {
@@ -41,10 +42,8 @@ public class MissileRain : MonoBehaviour
     void SpawnMissile()
     {
         Bounds bounds = zone.bounds;
-
         float x = Random.Range(bounds.min.x, bounds.max.x);
         float z = Random.Range(bounds.min.z, bounds.max.z);
-
         Vector3 spawnPos = new Vector3(x, bounds.max.y + spawnHeight, z);
 
         GameObject missile = Instantiate(missilePrefab, spawnPos, Quaternion.identity);
@@ -52,9 +51,39 @@ public class MissileRain : MonoBehaviour
         Rigidbody rb = missile.GetComponent<Rigidbody>();
         if (rb != null)
         {
+            // ✅ เช็กให้ชัวร์ว่าตัวกระสุนเองไม่ได้เผลอตั้งเป็น Kinematic ใน Prefab
+            if (rb.isKinematic) rb.isKinematic = false;
+
             rb.linearVelocity = Vector3.down * 50f;
         }
-
         missile.transform.rotation = Quaternion.LookRotation(Vector3.down);
+    }
+    public void TargetRandomFamilyMember()
+    {
+        // 1. หา NPC ทั้งหมดที่มี Tag ว่า Family
+        GameObject[] familyMembers = GameObject.FindGameObjectsWithTag("Family");
+
+        if (familyMembers.Length > 0)
+        {
+            // 2. สุ่มเลือกมา 1 ตัวเลข index
+            int randomIndex = Random.Range(0, familyMembers.Length);
+            GameObject victim = familyMembers[randomIndex];
+
+            // 3. ดึงสคริปต์เลือดออกมา (สมมติว่าชื่อ NPC_Health)
+            // ถ้าของนายใช้ชื่ออื่น ให้เปลี่ยนตรงนี้นะครับ
+            NPCHealth healthScript = victim.GetComponent<NPCHealth>();
+
+            if (healthScript != null)
+            {
+                // 4. ลดเลือด 51 (หรือตามที่นายต้องการเพื่อให้ Down)
+                healthScript.TakeDamage(51f);
+
+                Debug.Log("ระเบิดสุ่มโดน: " + victim.name + " จนล้มลง!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("ไม่พบคนในครอบครัว (Tag: Family) ให้สุ่มเลย!");
+        }
     }
 }

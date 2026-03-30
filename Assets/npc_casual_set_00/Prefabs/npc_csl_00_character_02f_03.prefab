@@ -3511,7 +3511,9 @@ MonoBehaviour:
   runSpeed: 8
   walkRadius: 20
   safeZone: {fileID: 8726060932828587593, guid: 47774b42fd101d146b18e188819531b0, type: 3}
+  agent: {fileID: 1488688240922720535}
   isSafe: 0
+  isEscortedByPlayer: 0
 --- !u!114 &5799339363086253592
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3526,7 +3528,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCHealth
   maxHP: 100
   currentHP: 100
-  bleedDamage: 1
+  bleedDamage: 0.5
   currentState: 0
 --- !u!136 &656301683791624653
 CapsuleCollider:
@@ -3605,7 +3607,7 @@ MonoBehaviour:
   outlineMode: 0
   outlineColor: {r: 1, g: 0, b: 0, a: 1}
   outlineWidth: 2
-  precomputeOutline: 0
+  precomputeOutline: 1
   bakeKeys: []
   bakeValues: []
 --- !u!1 &2410776230468245719

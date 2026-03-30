@@ -11,7 +11,7 @@ public class NPC_QueryMovement : MonoBehaviour
 
     [Header("Safe Zone")]
     public GameObject safeZone;
-    private NavMeshAgent agent; // 🟢 แก้ไข: ตัวแปรสำหรับคุม NavMeshAgent
+    public NavMeshAgent agent; // 🟢 แก้ไข: ตัวแปรสำหรับคุม NavMeshAgent
     private NavMeshPath path;
     private int currentCorner = 0;
     private bool hasPath = false;
@@ -27,6 +27,8 @@ public class NPC_QueryMovement : MonoBehaviour
     private Outline outlineComponent;
     [Header("Sanity Check")]
     public bool isEscortedByPlayer = false;
+    [Header("Carried Settings")]
+    private Rigidbody rb;
 
     void Start()
     {
@@ -75,7 +77,7 @@ public class NPC_QueryMovement : MonoBehaviour
         HandleMissileState();
         MoveAlongPath();
         UpdateAnimation();
-        
+
     }
 
     void OnHealthStateChanged()
@@ -199,43 +201,99 @@ public class NPC_QueryMovement : MonoBehaviour
     {
         if (isSafe) return; // กันรันซ้ำ
         isSafe = true;
+
+        // --- 1. ระบบจัดการค่าสติ (Sanity) และการบันทึกข้อมูล (Analytics) ---
         if (wasCarried || isEscortedByPlayer)
         {
             if (SanityManager.Instance != null)
             {
-                SanityManager.Instance.IncreaseSanity();
-                Debug.Log("<color=green>Sanity Increased! NPC saved by Player.</color>");
+                // เช็กว่าเป็นคนในครอบครัวหรือไม่
+                if (gameObject.CompareTag("Family"))
+                {
+                    // ช่วยครอบครัว (เรียก 2 รอบเพื่อให้รางวัลเยอะกว่าปกติ)
+                    SanityManager.Instance.IncreaseSanity();
+                    SanityManager.Instance.IncreaseSanity();
+                    Debug.Log($"<color=cyan>FAMILY SAVED: {gameObject.name}! ค่าสติฟื้นฟูอย่างมาก</color>");
+                }
+                else
+                {
+                    SanityManager.Instance.IncreaseSanity();
+                    Debug.Log($"<color=green>NPC SAVED: {gameObject.name}! ค่าสติเพิ่มขึ้น</color>");
+                }
+            }
+
+            // 🔥 ส่วนการบันทึก Log แบบละเอียด (6 พารามิเตอร์)
+            if (AnalyticsManager.Instance != null)
+            {
+                // 1. ระยะห่าง (เข้า Safe Zone แล้วให้เป็น 0)
+                float dist = 0f;
+
+                // 2. นับจำนวนครอบครัวที่เหลือในฉาก (รวมตัวที่เพิ่งช่วยได้นี้ด้วย)
+                int famLeft = GameObject.FindGameObjectsWithTag("Family").Length;
+
+                // 3. ดึงเลือดของผู้เล่น (ใส่ 100f ไว้ก่อน หรือดึงจากสคริปต์เลือดของนาย)
+                float pHP = 100f;
+                /* ถ้ามีสคริปต์เลือดผู้เล่น ให้ใช้แบบนี้:
+                   PlayerHealth player = FindObjectOfType<PlayerHealth>();
+                   if(player != null) pHP = player.currentHealth;
+                */
+
+                // ส่งข้อมูลชุดใหญ่ไปที่ Analytics
+                AnalyticsManager.Instance.LogEvent(
+                    "SAVED_BY_PLAYER",
+                    gameObject.tag,
+                    SanityManager.Instance.currentSanity,
+                    dist,
+                    famLeft,
+                    pHP
+                );
             }
         }
         else
         {
-            Debug.Log("<color=yellow>NPC entered alone. No Sanity reward.</color>");
+            // กรณีเดินเข้าโซนเองโดยที่ผู้เล่นไม่ได้ช่วย
+            Debug.Log($"<color=yellow>{gameObject.name} entered alone. No Sanity reward.</color>");
+
+            if (AnalyticsManager.Instance != null)
+            {
+                int famLeft = GameObject.FindGameObjectsWithTag("Family").Length;
+
+                // ส่งข้อมูลชุดใหญ่ (แม้รอดเองก็ต้องเก็บสถิติ)
+                AnalyticsManager.Instance.LogEvent(
+                    "SAVED_ALONE",
+                    gameObject.tag,
+                    SanityManager.Instance.currentSanity,
+                    0f,
+                    famLeft,
+                    100f
+                );
+            }
         }
 
-        // รีเซ็ตค่าเพื่อความปลอดภัย
-        isEscortedByPlayer = false;
+        // --- 2. ระบบจัดการการเคลื่อนที่หลังเข้าโซนปลอดภัย ---
+        isEscortedByPlayer = false; // รีเซ็ตค่าการเดินตาม
+
         if (wasCarried)
         {
-            // 🛑 อุ้มมาวาง = หยุดตรงนั้นเลย
+            // ถ้าถูกอุ้มมาวาง ให้หยุดนิ่งตรงที่วางเลย
             StopMovement();
-            Debug.Log(gameObject.name + " [Dropped] Standing still.");
+            Debug.Log(gameObject.name + " [Dropped] Standing still in Safe Zone.");
         }
         else
         {
-            // 🚶 เดินมาเอง = สุ่มจุดลึกเข้าไปข้างใน
+            // ถ้าเดินมาเอง ให้สุ่มจุดเดินลึกเข้าไปข้างในโซนอีกนิดเพื่อให้ดูเป็นธรรมชาติ
             float randomRadius = 5f;
             Vector3 randomPos = zoneCenter + (Random.insideUnitSphere * randomRadius);
 
             NavMeshHit hit;
             if (NavMesh.SamplePosition(randomPos, out hit, randomRadius, NavMesh.AllAreas))
             {
-                // ใช้ระบบ Path เดิมของนายในการเดินไปจุดสุ่ม
                 if (NavMesh.CalculatePath(transform.position, hit.position, NavMesh.AllAreas, path))
                 {
                     currentCorner = 0;
                     hasPath = true;
-                    currentSpeed = walkSpeed; // เดินไปชิลๆ ข้างใน
-                    Debug.Log(gameObject.name + " [Walk-in] Moving deeper...");
+                    currentSpeed = walkSpeed; // ใช้ความเร็วเดินปกติ
+                    Debug.Log(gameObject.name + " [Walk-in] Moving to a safe spot inside.");
                 }
             }
         }
@@ -307,17 +365,111 @@ public class NPC_QueryMovement : MonoBehaviour
         lastPosition = transform.position;
     }
 
+    // แก้ไขฟังก์ชันใน NPC_QueryMovement.cs
     void UpdateOutlineStatus()
     {
         if (outlineComponent == null || healthScript == null) return;
-        if (healthScript.currentState == NPCHealth.State.Down || healthScript.currentState == NPCHealth.State.Injured)
-            outlineComponent.enabled = true;
-        else
-            outlineComponent.enabled = false;
+
+        bool shouldShowOutline = (healthScript.currentState == NPCHealth.State.Down || healthScript.currentState == NPCHealth.State.Injured);
+
+        if (outlineComponent.enabled != shouldShowOutline)
+        {
+            outlineComponent.enabled = shouldShowOutline;
+
+            // ✨ บังคับให้ Mesh อัปเดตขอบเขตใหม่ทุกครั้งที่เปิด Outline
+            var renderer = GetComponentInChildren<Renderer>();
+            if (renderer != null)
+            {
+                renderer.allowOcclusionWhenDynamic = false; // ปิดการซ่อนตัวอัตโนมัติ
+            }
+        }
     }
     public void StartEscorting()
     {
         isEscortedByPlayer = true;
         Debug.Log(gameObject.name + " is now being escorted by Player.");
+    }
+    [Header("Physics Settings")]
+    private Collider npcCollider; // ตัวแปรเก็บ Collider
+
+    // เพิ่มฟังก์ชันนี้เข้าไปใน NPC_QueryMovement
+    private void OnTransformParentChanged()
+    {
+        // ถ้าถูกจับไปเป็นลูกของอะไรบางอย่าง (ถูกอุ้ม)
+        if (transform.parent != null)
+        {
+            Debug.Log("NPC: ตรวจพบการโดนอุ้ม! กำลังปิดระบบเดิน...");
+
+            // เรียกใช้คำสั่งปิดที่เราเขียนไว้
+            // (ส่งค่า parent ไปเป็น socket เลย)
+            OnPickedUp(transform.parent);
+        }
+        else
+        {
+            Debug.Log("NPC: ตรวจพบการปล่อยวาง!");
+            OnDropped();
+        }
+    }
+
+    // ปรับปรุง OnPickedUp เล็กน้อยเพื่อให้รองรับการเรียกแบบนี้
+    public void OnPickedUp(Transform socket)
+    {
+        // เช็ค Component ให้ชัวร์
+        if (agent == null) agent = GetComponent<NavMeshAgent>();
+        if (rb == null) rb = GetComponent<Rigidbody>();
+        if (npcCollider == null) npcCollider = GetComponent<Collider>();
+
+        // 1. หยุด NavMesh แน่นอน 100%
+        if (agent != null)
+        {
+            agent.enabled = false;
+            Debug.Log("NPC: NavMeshAgent ปิดตัวลงแล้ว");
+        }
+
+        // 2. ตั้งค่าฟิสิกส์
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            rb.linearVelocity = Vector3.zero;
+        }
+
+        // 3. ปิด Collider กันดีดเข้าตัวผู้เล่น
+        if (npcCollider != null) npcCollider.enabled = false;
+
+        // 4. จัดตำแหน่ง (ถ้า socket ไม่ใช่ตัวมันเอง)
+        transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.identity;
+
+        if (animator != null) animator.SetBool("isBeingCarried", true);
+    }
+    // ก๊อปปี้ส่วนนี้ไปวางใน NPC_QueryMovement นะครับ
+    public void OnDropped()
+    {
+        // 1. คืนค่า Collider ให้กลับมาชนได้ปกติ
+        if (npcCollider == null) npcCollider = GetComponent<Collider>();
+        if (npcCollider != null) npcCollider.enabled = true;
+
+        // 2. คืนค่าฟิสิกส์ ให้ตกตามแรงโน้มถ่วง
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+        }
+
+        // 3. ปล่อยจากการเป็นลูก (Parent)
+        transform.SetParent(null);
+
+        // 4. เปิดระบบเดิน NavMesh กลับมา (ถ้ายังไม่ปลอดภัย)
+        if (agent == null) agent = GetComponent<NavMeshAgent>();
+        if (agent != null && !isSafe)
+        {
+            agent.enabled = true;
+            // สั่งให้น้องหาที่ไปใหม่ทันที
+            SetRandomDestination();
+        }
+
+        // 5. บอก Animator ว่าเลิกโดนอุ้มแล้ว
+        if (animator != null) animator.SetBool("isBeingCarried", false);
     }
 }

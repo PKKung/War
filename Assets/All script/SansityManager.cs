@@ -26,7 +26,11 @@ public class SanityManager : MonoBehaviour
         currentSanity = maxSanity;
         UpdateUI();
     }
-
+    void Update()
+    {
+        // บังคับให้ UI วาดใหม่ทุกเฟรมตามค่า currentSanity จริงๆ
+        UpdateUI();
+    }
     // ฟังก์ชันสำหรับ "ลด" ค่าสติ (เรียกใช้ตอน NPC ตาย)
     public void DecreaseSanity()
     {
@@ -60,7 +64,7 @@ public class SanityManager : MonoBehaviour
     // เพิ่มใน SanityManager.cs
     public void DecreaseSanityFamily()
     {
-        currentSanity -= 30f; // หรือตั้งตัวแปร penaltyFamilyDeath ก็ได้
+        currentSanity -= 40f; // หรือตั้งตัวแปร penaltyFamilyDeath ก็ได้
         currentSanity = Mathf.Clamp(currentSanity, 0, maxSanity);
         // UpdateUI() จะทำงานอัตโนมัติถ้าใส่ไว้ใน Update หรือเรียกใช้ตรงนี้
         UpdateUI();
