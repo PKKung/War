@@ -25,6 +25,9 @@ public class PlayerHealth : MonoBehaviour
     [Header("First Person Offset")]
     public float normalZOffset = 0f;
     public float crawlZOffset = 0.2f;
+    [Header("Audio")]
+    public AudioSource downStateAudio; // เสียงคราง/เสียงหัวใจเต้นตอนเลือดต่ำ
+    public float downThreshold = 30f;
 
     private Animator _animator;
     private FirstPersonController _controller;
@@ -56,6 +59,17 @@ public class PlayerHealth : MonoBehaviour
     void Update()
     {
         // 1. ระบบตรวจจับสถานะจากเลือด
+        if (currentHealth > 0 && currentHealth <= downThreshold)
+        {
+            if (!downStateAudio.isPlaying) downStateAudio.Play();
+
+            // แถม: ปรับความดังตามความวิกฤต (ยิ่งเลือดน้อยยิ่งดัง)
+            downStateAudio.volume = 1 - (currentHealth / downThreshold);
+        }
+        else
+        {
+            if (downStateAudio.isPlaying) downStateAudio.Stop();
+        }
         if (currentHealth < crawlThreshold && !_isDown)
         {
             SetCrawlState(true);

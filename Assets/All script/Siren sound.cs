@@ -35,7 +35,7 @@ public class SirenManager : MonoBehaviour
     {
         if (audioSource != null && sirenSound != null)
         {
-            // 🔊 เล่นเสียงไซเรน
+            if (SimpleBGMController.Instance != null) SimpleBGMController.Instance.FadeToLow();
             audioSource.PlayOneShot(sirenSound);
             Debug.Log("🚨 ไซเรนดัง!");
 

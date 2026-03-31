@@ -6,8 +6,12 @@ using System.Collections.Generic;
 public class GameDataPoint
 {
     public float time;
+    public string eventType; // เพิ่มอันนี้
+    public string npcTag;    // เพิ่มอันนี้
     public float sanity;
+    public float distanceToSafe; // เพิ่มอันนี้
     public int familyLeft;
+    public float playerHP;   // เพิ่มอันนี้
 }
 
 public class AnalyticsManager : MonoBehaviour
@@ -98,8 +102,12 @@ public class AnalyticsManager : MonoBehaviour
         sessionHistory.Add(new GameDataPoint
         {
             time = Time.time,
+            eventType = eventType,
+            npcTag = npcTag,
             sanity = sanity,
-            familyLeft = currentFamilyInScene
+            distanceToSafe = distance,
+            familyLeft = currentFamilyInScene,
+            playerHP = playerHP
         });
 
         Debug.Log($"<color=yellow>[Analytics] Data added to List. Total points: {sessionHistory.Count}</color>");

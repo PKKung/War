@@ -8,59 +8,81 @@ using TMPro;
 public class GeminiAIController : MonoBehaviour
 {
     [Header("Settings")]
-    public string apiKey = "AIzaSyxxxx"; // ใส่แค่รหัสรัวๆ
+    public string apiKey = "ใส่_API_KEY_ของนายตรงนี้";
 
-    // ประกาศ URL ไว้แค่ถึงเครื่องหมาย = 
-    private string url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=";
-
+    // ใช้ v1beta และ gemini-1.5-flash เพื่อโควตาที่เยอะกว่าและฉลาดพอสำหรับวิเคราะห์ CSV
+    private string url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-lite:generateContent?key=";
 
     [Header("UI Reference")]
     public TextMeshProUGUI uiDisplayText;
-    [Header("UI to Hide")]
+
+    [Header("UI to Hide/Show")]
     public GameObject endScreenContent;
     public GameObject restartButton;
     public GameObject backButton;
     public GameObject aiAnalysisButton;
+    [Header("UI Reference")]
+    public GameObject aiScrollView; // ลาก Object "Scroll View" ตัวแม่มาใส่ช่องนี้
+     
 
-    // 1. ฟังก์ชันเรียกใช้งาน (ผูกกับปุ่ม OnClick)
+    // 1. ฟังก์ชันเรียกใช้งาน (ผูกกับปุ่ม OnClick ของปุ่ม AI Analysis)
     public void RequestAIAnalysis()
     {
         var manager = AnalyticsManager.Instance;
         if (manager == null)
         {
-            Debug.LogError("AnalyticsManager.Instance is null!");
+            Debug.LogError("AnalyticsManager ไม่ทำงานในฉากนี้!");
             return;
         }
+
+        // ซ่อนหน้าจอจบปกติ เพื่อโชว์หน้าจอ AI
         if (endScreenContent != null) endScreenContent.SetActive(false);
         if (restartButton != null) restartButton.SetActive(false);
 
-        // แปลง List ข้อมูลเป็น CSV string
+        // --- สร้างข้อมูล CSV 7 คอลัมน์ตามที่ออกแบบไว้ ---
         StringBuilder sb = new StringBuilder();
-        sb.AppendLine("Time,Event,NPC,Sanity,FamilyLeft");
+        sb.AppendLine("Time,EventType,NPCTag,Sanity,DistanceToSafe,FamilyLeft,PlayerHP");
 
         foreach (var data in manager.sessionHistory)
         {
-            sb.AppendLine($"{data.time:F1},{data.sanity:F1},{data.familyLeft}");
+            sb.AppendLine($"{data.time:F2},{data.eventType},{data.npcTag},{data.sanity:F1},{data.distanceToSafe:F2},{data.familyLeft},{data.playerHP:F1}");
         }
 
         if (uiDisplayText != null)
         {
             uiDisplayText.gameObject.SetActive(true);
+            aiScrollView.SetActive(true);
             uiDisplayText.text = "AI is analyzing your behavior...";
         }
 
-        // เริ่มส่งข้อมูลไปหา AI
+        // เริ่ม Coroutine ส่งข้อมูล
         StartCoroutine(PostToGemini(sb.ToString()));
     }
 
-    // 2. ฟังก์ชันส่งข้อมูลเข้า Cloud
+    // 2. ฟังก์ชันส่งข้อมูลและรับคำตอบจาก Gemini API
     IEnumerator PostToGemini(string csvData)
     {
-        // สร้างคำสั่ง (Prompt)
-        string prompt = "You are a professional game analyst. Analyze this CSV player behavior data: \n" + csvData +
-                        "\nProvide a 3-point summary in English about their playstyle and ending.";
+        var manager = AnalyticsManager.Instance;
+        if (manager == null) yield break;
 
-        // เตรียมข้อมูลส่ง (JSON)
+        // สร้าง Summary สั้นๆ แปะหัวเพื่อให้ AI มีตัวเลขตั้งต้นที่ถูกต้อง
+        string summary = $"[Session Summary]\n" +
+                         $"- Initial Family: {manager.initialFamilyCount}\n" +
+                         $"- Family Saved: {manager.familySavedCount}\n" +
+                         $"- Total Deaths: {manager.deadCount}\n\n";
+
+        // Prompt ที่สั่งให้ AI เป็นนักจิตวิทยาและวิเคราะห์ความสัมพันธ์ของตัวแปรต่างๆ
+        string prompt = "You are a professional Game Psychologist and Player Behavior Analyst. " +
+                        "Analyze this player's data to judge their humanity and decision-making.\n\n" +
+                        summary +
+                        "[Detailed CSV Log]\n" + csvData + "\n\n" +
+                        "### Instructions for Analysis:\n" +
+                        "1. **Playstyle**: Did they prioritize family or NPCs? Did they stay selfless even at low 'PlayerHP'?\n" +
+                        "2. **Stress Response**: How did they react during 'EXPLOSION_PANIC'? Look at 'Sanity' and 'DistanceToSafe'.\n" +
+                        "3. **Moral Compass**: If family died while PlayerHP was high, point out their negligence.\n\n" +
+                        "Provide a concise 3-point summary in English. Be insightful, direct, and witty.";
+
+        // เตรียม JSON Request
         GeminiRequest request = new GeminiRequest
         {
             contents = new List<Content> {
@@ -71,7 +93,6 @@ public class GeminiAIController : MonoBehaviour
         string json = JsonUtility.ToJson(request);
         string fullUrl = url + apiKey;
 
-        // ใช้ new UnityWebRequest เพื่อแก้ปัญหา 404
         using (UnityWebRequest www = new UnityWebRequest(fullUrl, "POST"))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
@@ -83,58 +104,46 @@ public class GeminiAIController : MonoBehaviour
 
             if (www.result == UnityWebRequest.Result.Success)
             {
-                // รับคำตอบและโชว์บนหน้าจอ
                 GeminiResponse response = JsonUtility.FromJson<GeminiResponse>(www.downloadHandler.text);
                 if (response != null && response.candidates.Count > 0)
                 {
                     string aiAnalysis = response.candidates[0].content.parts[0].text;
+
                     if (uiDisplayText != null) uiDisplayText.text = aiAnalysis;
-                    if (backButton != null) backButton.SetActive(true);
-                    Debug.Log("AI Analysis Success: " + aiAnalysis);
+                    if (backButton != null) backButton.SetActive(true); // โชว์ปุ่มกลับ
+
+                    Debug.Log("AI Analysis Success!");
                 }
             }
             else
             {
-                // ถ้าพัง รอบนี้มันจะบอกเหตุผลชัดเจนใน Console
                 Debug.LogError($"AI Error: {www.error} | Response: {www.downloadHandler.text}");
-                if (uiDisplayText != null) uiDisplayText.text = "Error: AI could not reach the server.";
+                if (uiDisplayText != null) uiDisplayText.text = "Error: AI could not analyze the data. Check your API Key or Quota.";
             }
         }
     }
-    public void RestoreEndScreen()
-    {
-        if (endScreenContent != null) endScreenContent.SetActive(true);
-        if (restartButton != null) restartButton.SetActive(true);
 
-        // ซ่อนตัวหนังสือ AI ไปด้วยเลยก็ได้ถ้าต้องการ
-        if (uiDisplayText != null) uiDisplayText.gameObject.SetActive(false);
-    }
+    // ฟังก์ชันสำหรับปุ่ม Back (ปิดหน้า AI กลับไปหน้าจบปกติ)
     public void OnBackButtonClicked()
     {
-        // 1. เปิดของเก่ากลับมา
         if (endScreenContent != null) endScreenContent.SetActive(true);
         if (restartButton != null) restartButton.SetActive(true);
-
-        // 2. ปิดหน้าจอ AI และปุ่ม Back
         if (uiDisplayText != null) uiDisplayText.gameObject.SetActive(false);
         if (backButton != null) backButton.SetActive(false);
+        if(aiScrollView != null) aiScrollView.SetActive(false);
 
-        // 3. ปิดปุ่ม AI Analysis ตามที่นายต้องการ
+        // ปิดปุ่มวิเคราะห์ไปเลย เพราะวิเคราะห์ไปแล้วครั้งหนึ่ง
         if (aiAnalysisButton != null) aiAnalysisButton.SetActive(false);
     }
+
+    // รีเซ็ตหน้าจอทุกครั้งที่ Object นี้ถูกเปิดใช้งาน
     private void OnEnable()
     {
-        // ทันทีที่หน้า EndingScreen (ตัวแม่) ถูกสั่ง SetActive(true)
-        // ฟังก์ชันนี้จะทำงานเพื่อ Reset หน้าจอให้พร้อมใช้งานทันที
-
-        // 1. ปิดหน้าจอผลลัพธ์ AI และปุ่ม Back ไว้ก่อน (เพื่อไม่ให้มันโผล่มาแทรก)
         if (uiDisplayText != null) uiDisplayText.gameObject.SetActive(false);
         if (backButton != null) backButton.SetActive(false);
-
-        // 2. มั่นใจว่าปุ่มวิเคราะห์ และหน้าจอจบปกติเปิดอยู่
         if (aiAnalysisButton != null) aiAnalysisButton.SetActive(true);
         if (endScreenContent != null) endScreenContent.SetActive(true);
         if (restartButton != null) restartButton.SetActive(true);
+        if (aiScrollView != null) aiScrollView.SetActive(false);
     }
-
 }

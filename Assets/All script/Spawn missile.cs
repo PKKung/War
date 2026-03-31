@@ -36,6 +36,7 @@ public class MissileRain : MonoBehaviour
         }
 
         isMissileActive = false; // ✅ ระเบิดจบแล้ว
+        if (SimpleBGMController.Instance != null) SimpleBGMController.Instance.FadeToMax();
         Debug.Log("ยิงครบแล้ว!");
     }
 

@@ -802,7 +802,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCHealth
   maxHP: 100
   currentHP: 100
-  bleedDamage: 0.5
+  bleedDamage: 0.25
   currentState: 0
 --- !u!136 &7188234910217611958
 CapsuleCollider:
